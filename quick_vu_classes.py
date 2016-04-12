@@ -58,3 +58,54 @@ class Menu(object):
 		"""  Here goes logic for appending a new item to the menu of a site whenever a new page is added """
 		self.d('ul').append('<li><a href="#">' + pageTitle + '</a></li>')
 
+class Form:
+	def __init__(self):
+		self.form = '<form role="form"> </form>'
+
+	def addTextArea(self):
+		""" Logic for adding a textarea to the form """
+		textArea = '<div class="form-group"> <label for="textBox">Text area label:</label> <textarea class="form-control" placeholder="Write in your textarea" id="textBox"></textarea> </div>'
+
+	def addDropdown(self):
+		"""	Logic for adding a dropdown to the form	"""
+		dropdown = '<div class="form-group"> <label for="sel1">Select list:</label> <select class="form-control" id="sel1"> <option>for every option</option> </select> </div>'
+
+	def addCheckbox(self):
+		"""	Logic for adding a checkbox to the form	"""
+		checkbox = '<div class="checkbox"> <label><input type="checkbox" value="">Checkbox</label> </div>'
+
+	def addRadio(self):
+		"""	Logic for adding a radio button to the form	"""
+		radio = '<div class="radio"> <label><input type="radio">Radio button</label> </div>'
+
+	def addInput(self, type):
+		""" Logic in charge of adding an input form element """
+		input = '<div class="form-group"> <label for="theInput">Input:</label> <input type="' + type + '" class="form-control" id="theInput"> </div>'
+
+	def addSubmit(self):
+		"""	Logic for adding a submit button to the form """
+		submit = '<button type="submit" class="btn btn-default">Submit</button>'
+
+class Main:
+	def __init__(self, columns):
+		self.columnDict = {
+			1: '<main> </main>',
+			2: '<main> <div class="row"> <div class="col-sm-6"> <p>Left column</p> </div> <div class="col-sm-6"> <p>Right column</p> </div> </div> </main>'
+		}
+		self.main = self.columnDict[columns]
+
+	def addParagraph(self):
+		"""	Logic for adding a paragraph """
+		paragraph = '<p>This is a paragraph. Write blocks of text here.</p>'
+
+	def addList(self):
+		"""	Logic for adding a list """
+		list = '<ul class="list-group"> <li class="list-group-item">for every item</li> </ul>'
+
+	def addButton(self):
+		"""	Logic for adding a button """
+		button = '<button type="button" class="btn btn-default">A button</button>'
+
+class Footer:
+	def __init__(self):
+		self.footer = '<footer> <p>This is the footer of the page</p> </footer>'
