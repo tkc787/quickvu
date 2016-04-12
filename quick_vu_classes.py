@@ -56,7 +56,6 @@ class Page(BaseMarkup):
 	def addMainContent(self, MainContent):
 		self.appendMarkup(MainContent.getMarkup(), 'body')
 
-
 	def pagePackager(self):
 		""" Logic in charge of packaging all files into a directory """
 
@@ -90,7 +89,21 @@ class Menu(BaseMarkup):
 
 class Form(BaseMarkup):
 	def __init__(self):
-		self.form = '<form role="form"> </form>'
+		self.markup = '<form role="form"> </form>'
+		self.d = pq(self.markup)
+
+	def getMarkup(self):
+		""" Return object markup string """
+		return self.markup
+
+	def getPrettyMarkup(self):
+		""" Here goes logic for returning page markup string, with correct indentation """
+		soup = BeautifulSoup(self.markup, 'html.parser')
+		return soup.prettify()
+
+	def appendMarkup(self, markup, node):
+		"""	Logic for appending current page body markup with parameter markup.	"""
+		self.d(node).append(markup)
 
 	def addTextArea(self):
 		""" Logic for adding a textarea to the form """
@@ -117,12 +130,27 @@ class Form(BaseMarkup):
 		submit = '<button type="submit" class="btn btn-default">Submit</button>'
 
 class MainContent:
-	def __init__(self, columns):
-		self.columnDict = {
-			1: '<main> </main>',
-			2: '<main> <div class="row"> <div class="col-sm-6"> <p>Left column</p> </div> <div class="col-sm-6"> <p>Right column</p> </div> </div> </main>'
-		}
-		self.main = self.columnDict[columns]
+	def __init__(self):
+		# self.columnDict = {
+		# 	1: '<main> </main>',
+		# 	2: '<main> <div class="row"> <div class="col-sm-6"> <p>Left column</p> </div> <div class="col-sm-6"> <p>Right column</p> </div> </div> </main>'
+		# }
+		# self.main = self.columnDict[columns]
+		self.markup = '<main> <div class="row"> <div class="col-sm-3"> </div> <div id="main" class="col-sm-6"> <p>Main column</p> </div> <div class="col-sm-3"> </div> </div> </main>'
+		self.d = pq(self.markup)
+
+	def getMarkup(self):
+		""" Return object markup string """
+		return self.markup
+
+	def getPrettyMarkup(self):
+		""" Here goes logic for returning page markup string, with correct indentation """
+		soup = BeautifulSoup(self.markup, 'html.parser')
+		return soup.prettify()
+
+	def appendMarkup(self, markup, node):
+		"""	Logic for appending current page body markup with parameter markup.	"""
+		self.d(node).append(markup)
 
 	def addParagraph(self):
 		"""	Logic for adding a paragraph """
@@ -138,4 +166,18 @@ class MainContent:
 
 class Footer:
 	def __init__(self):
-		self.footer = '<footer> <p>This is the footer of the page</p> </footer>'
+		self.markup = '<footer> <p>This is the footer of the page</p> </footer>'
+		self.d = pq(self.markup)
+
+	def getMarkup(self):
+		""" Return object markup string """
+		return self.markup
+
+	def getPrettyMarkup(self):
+		""" Here goes logic for returning page markup string, with correct indentation """
+		soup = BeautifulSoup(self.markup, 'html.parser')
+		return soup.prettify()
+
+	def appendMarkup(self, markup, node):
+		"""	Logic for appending current page body markup with parameter markup.	"""
+		self.d(node).append(markup)
