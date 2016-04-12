@@ -1,30 +1,61 @@
 # Page Classes
 
+# import abc
+
 # Importing PyQuery Library for html management
 from pyquery import PyQuery as pq
 
 # Importing BeautifulSoup Library for cleaning final html output
 from bs4 import BeautifulSoup
 		
+class BaseMarkup(object):
+    __metaclass__  = abc.ABCMeta
 
-class Page(object):
-	def __init__(self, pageTitle):
-		super(Page, self).__init__()
+    @abstractmethod
+	def getMarkup(self):
+		""" Return current Object Markup """
+		
+	@abstractmethod
+	def getPrettyMarkup(self):
+	""" Logic for returning page with correct html indentation """
+
+	@abstractmethod
+	def appendMarkup(self, markup, node):
+	""" Logic for appending markup to target node """
+
+
+class Page(BaseMarkup):
+	def startPage(self, pageTitle):
 		self.pageTitle = pageTitle
-		self.markup = '<html lang="en"> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head> <body> <script src="js/script.js"></script> </body> </html>'
+		self.markup = '<html lang="en"> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head> <body> <nav> </nav> </body> </html>'
 		self.d = pq(self.markup)
+		self.hasMenu = False
+		self.hasFooter = False			
 
 	def getMarkup(self):
+		""" Return object markup string """
 		return self.markup
 
 	def getPrettyMarkup(self):
-		""" Here goes logic for returning page"""
+		""" Here goes logic for returning page markup string, with correct indentation """
 		soup = BeautifulSoup(self.markup, 'html.parser')
 		return soup.prettify()
 
-	def appendMarkup(self, markup):
+	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
-		self.d('body').append(markup)
+		self.d(node).append(markup)
+
+	def getPageTitle(self):
+		return self.pageTitle
+
+	def addMenu(self, type):
+		m = Menu(type, self.pageTitle)
+		self.d('body').prepend(m.getMarkup())
+		self.hasMenu = True
+
+	def addMainContent(self, MainContent):
+		self.appendMarkup(MainContent.getMarkup(), 'body')
+
 
 	def pagePackager(self):
 		""" Logic in charge of packaging all files into a directory """
@@ -33,10 +64,9 @@ class Page(object):
 		"""Logic in charge of printing current page markup"""
 		print(self.getPrettyMarkup())
 
-class Menu(object):
-	"""docstring for Menu"""
+class Menu(BaseMarkup):
 	def __init__(self, type, pageTitle):
-		super(Menu, self).__init__()
+		# super(Menu, self).__init__()
 		self.menuDict = {
 			1: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav> <div class="row"></div>',
 			2: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav>',
@@ -55,10 +85,10 @@ class Menu(object):
 		return soup.prettify()
 
 	def addPageToMenu(self, pageTitle):
-		"""  Here goes logic for appending a new item to the menu of a site whenever a new page is added """
+		""" Here goes logic for appending a new item to the menu of a site whenever a new page is added """
 		self.d('ul').append('<li><a href="#">' + pageTitle + '</a></li>')
 
-class Form:
+class Form(BaseMarkup):
 	def __init__(self):
 		self.form = '<form role="form"> </form>'
 
@@ -86,7 +116,7 @@ class Form:
 		"""	Logic for adding a submit button to the form """
 		submit = '<button type="submit" class="btn btn-default">Submit</button>'
 
-class Main:
+class MainContent:
 	def __init__(self, columns):
 		self.columnDict = {
 			1: '<main> </main>',
