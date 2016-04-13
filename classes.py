@@ -8,29 +8,29 @@ from pyquery import PyQuery as pq
 # Importing BeautifulSoup Library for cleaning final html output
 from bs4 import BeautifulSoup
 		
-class BaseMarkup(object):
-    __metaclass__  = abc.ABCMeta
+# class BaseMarkup(object):
+#     __metaclass__  = abc.ABCMeta
 
-    @abstractmethod
-	def getMarkup(self):
-		""" Return current Object Markup """
+#     @abstractmethod
+# 	def getMarkup(self):
+# 		""" Return current Object Markup """
 		
-	@abstractmethod
-	def getPrettyMarkup(self):
-	""" Logic for returning page with correct html indentation """
+# 	@abstractmethod
+# 	def getPrettyMarkup(self):
+# 	""" Logic for returning page with correct html indentation """
 
-	@abstractmethod
-	def appendMarkup(self, markup, node):
-	""" Logic for appending markup to target node """
+# 	@abstractmethod
+# 	def appendMarkup(self, markup, node):
+# 	""" Logic for appending markup to target node """
 
-
-class Page(BaseMarkup):
+class Page:
 	def startPage(self, pageTitle):
 		self.pageTitle = pageTitle
 		self.markup = '<html lang="en"> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head> <body> <nav> </nav> </body> </html>'
 		self.d = pq(self.markup)
 		self.hasMenu = False
-		self.hasFooter = False			
+		self.hasFooter = False	
+		self.formElements = ['text', 'textarea', 'dropdown', 'checkbox', 'radio', 'number', 'password', 'submit']
 
 	def getMarkup(self):
 		""" Return object markup string """
@@ -53,8 +53,43 @@ class Page(BaseMarkup):
 		self.d('body').prepend(m.getMarkup())
 		self.hasMenu = True
 
-	def addMainContent(self, MainContent):
-		self.appendMarkup(MainContent.getMarkup(), 'body')
+	def addContent(self, column, elementArray):
+		c = Content()
+		i = 0
+		while i < len(elementArray):
+			if elementArray[i] == 'paragraph':
+				c.appendMarkup(c.addParagraph(), '#main')
+				i+=1
+			if elementArray[i] == 'list':
+				c.appendMarkup(c.addList(), '#main')
+				i+=1
+			if elementArray[i] == 'button':
+				c.appendMarkup( c.addButton(), '#main')
+				i+=1
+			if elementArray[i] == 'form':
+				i+=1
+				f = Form()
+				while elementArray[i] in self.formElements:
+					if elementArray[i] == 'textarea':
+						f.addTextArea()
+					if elementArray[i] == 'dropdown':
+						f.addDropdown()
+					if elementArray[i] == 'checkbox':
+						f.addCheckbox()
+					if elementArray[i] == 'radio':
+						f.addRadio()
+					if elementArray[i] == 'text':
+						f.addTextInput()
+					if elementArray[i] == 'password':
+						f.addPasswordInput()
+					if elementArray[i] == 'number':
+						f.addNumberInput()
+					if elementArray[i] == 'submit':
+						f.addSubmit()	
+					i+=1
+				c.appendMarkup(f.getMarkup(), '#main')
+
+		self.appendMarkup(c.getMarkup(), 'body')
 
 	def pagePackager(self):
 		""" Logic in charge of packaging all files into a directory """
@@ -63,7 +98,7 @@ class Page(BaseMarkup):
 		"""Logic in charge of printing current page markup"""
 		print(self.getPrettyMarkup())
 
-class Menu(BaseMarkup):
+class Menu:
 	def __init__(self, type, pageTitle):
 		# super(Menu, self).__init__()
 		self.menuDict = {
@@ -87,7 +122,7 @@ class Menu(BaseMarkup):
 		""" Here goes logic for appending a new item to the menu of a site whenever a new page is added """
 		self.d('ul').append('<li><a href="#">' + pageTitle + '</a></li>')
 
-class Form(BaseMarkup):
+class Form:
 	def __init__(self):
 		self.markup = '<form role="form"> </form>'
 		self.d = pq(self.markup)
@@ -107,29 +142,37 @@ class Form(BaseMarkup):
 
 	def addTextArea(self):
 		""" Logic for adding a textarea to the form """
-		textArea = '<div class="form-group"> <label for="textBox">Text area label:</label> <textarea class="form-control" placeholder="Write in your textarea" id="textBox"></textarea> </div>'
+		return '<div class="form-group"> <label for="textBox">Text area label:</label> <textarea class="form-control" placeholder="Write in your textarea" id="textBox"></textarea> </div>'
 
 	def addDropdown(self):
 		"""	Logic for adding a dropdown to the form	"""
-		dropdown = '<div class="form-group"> <label for="sel1">Select list:</label> <select class="form-control" id="sel1"> <option>for every option</option> </select> </div>'
+		return '<div class="form-group"> <label for="sel1">Select list:</label> <select class="form-control" id="sel1"> <option>for every option</option> </select> </div>'
 
 	def addCheckbox(self):
 		"""	Logic for adding a checkbox to the form	"""
-		checkbox = '<div class="checkbox"> <label><input type="checkbox" value="">Checkbox</label> </div>'
+		return '<div class="checkbox"> <label><input type="checkbox" value="">Checkbox</label> </div>'
 
 	def addRadio(self):
 		"""	Logic for adding a radio button to the form	"""
-		radio = '<div class="radio"> <label><input type="radio">Radio button</label> </div>'
+		return '<div class="radio"> <label><input type="radio">Radio button</label> </div>'
 
-	def addInput(self, type):
+	def addTextInput(self):
 		""" Logic in charge of adding an input form element """
-		input = '<div class="form-group"> <label for="theInput">Input:</label> <input type="' + type + '" class="form-control" id="theInput"> </div>'
+		return '<div class="form-group"> <label for="theInput">Input:</label> <input type="text" class="form-control" id="theInput"> </div>'
+
+	def addPasswordInput(self):
+		""" Logic in charge of adding an input form element """
+		return '<div class="form-group"> <label for="theInput">Input:</label> <input type="password" class="form-control" id="theInput"> </div>'
+
+	def addNumberInput(self):
+		""" Logic in charge of adding an input form element """
+		return '<div class="form-group"> <label for="theInput">Input:</label> <input type="number" class="form-control" id="theInput"> </div>'
 
 	def addSubmit(self):
 		"""	Logic for adding a submit button to the form """
-		submit = '<button type="submit" class="btn btn-default">Submit</button>'
+		return '<button type="submit" class="btn btn-default">Submit</button>'
 
-class MainContent:
+class Content:
 	def __init__(self):
 		# self.columnDict = {
 		# 	1: '<main> </main>',
@@ -154,15 +197,15 @@ class MainContent:
 
 	def addParagraph(self):
 		"""	Logic for adding a paragraph """
-		paragraph = '<p>This is a paragraph. Write blocks of text here.</p>'
+		return '<p>This is a paragraph. Write blocks of text here.</p>'
 
 	def addList(self):
 		"""	Logic for adding a list """
-		list = '<ul class="list-group"> <li class="list-group-item">for every item</li> </ul>'
+		return '<ul class="list-group"> <li class="list-group-item">for every item</li> </ul>'
 
 	def addButton(self):
 		"""	Logic for adding a button """
-		button = '<button type="button" class="btn btn-default">A button</button>'
+		return '<button type="button" class="btn btn-default">A button</button>'
 
 class Footer:
 	def __init__(self):

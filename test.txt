@@ -1,0 +1,3 @@
+VUcreate(title)
+VUmenu(1)
+VUcontainer(paragraph,form (text,dropdown,input,radio,checkbox,submit),list,button)
