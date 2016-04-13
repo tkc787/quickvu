@@ -26,11 +26,12 @@ from bs4 import BeautifulSoup
 class Page:
 	def startPage(self, pageTitle):
 		self.pageTitle = pageTitle
-		self.markup = '<html lang="en"> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head> <body> <nav> </nav> </body> </html>'
+		self.markup = '<html lang="en"> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head> <body> <main> <div class="row"> <div class="col-sm-3"> </div> <div id="main" class="col-sm-6"> <p>Main column</p> </div> <div class="col-sm-3"> </div> </div> </main> </body> </html>'
 		self.d = pq(self.markup)
 		self.hasMenu = False
-		self.hasFooter = False	
-		self.formElements = ['text', 'textarea', 'dropdown', 'checkbox', 'radio', 'number', 'password', 'submit']
+		self.hasFooter = False
+		self.hasForm = False
+		self.form = None
 
 	def getMarkup(self):
 		""" Return object markup string """
@@ -53,46 +54,49 @@ class Page:
 		self.d('body').prepend(m.getMarkup())
 		self.hasMenu = True
 
-	def addContent(self, column, elementArray):
+	def addContent(element):
 		c = Content()
-		i = 0
-		while i < len(elementArray):
-			if elementArray[i] == 'paragraph':
-				c.appendMarkup(c.addParagraph(), '#main')
-				i+=1
-			if elementArray[i] == 'list':
-				c.appendMarkup(c.addList(), '#main')
-				i+=1
-			if elementArray[i] == 'button':
-				c.appendMarkup( c.addButton(), '#main')
-				i+=1
-			if elementArray[i] == 'form':
-				i+=1
-				f = Form()
-				while elementArray[i] in self.formElements:
-					if elementArray[i] == 'textarea':
-						f.addTextArea()
-					if elementArray[i] == 'dropdown':
-						f.addDropdown()
-					if elementArray[i] == 'checkbox':
-						f.addCheckbox()
-					if elementArray[i] == 'radio':
-						f.addRadio()
-					if elementArray[i] == 'text':
-						f.addTextInput()
-					if elementArray[i] == 'password':
-						f.addPasswordInput()
-					if elementArray[i] == 'number':
-						f.addNumberInput()
-					if elementArray[i] == 'submit':
-						f.addSubmit()	
-					i+=1
-				c.appendMarkup(f.getMarkup(), '#main')
+		if element == 'paragraph':
+			c.appendMarkup(c.addParagraph(), '#main')
+		elif element == 'list':
+			c.appendMarkup(c.addList(), '#main')
+		elif element == 'button':
+			c.appendMarkup(c.addButton(), '#main')
 
-		self.appendMarkup(c.getMarkup(), 'body')
+	def addFormElement(self, element):
+		c = Content()
+		if !self.hasForm:
+			self.hasForm = True
+			self.form = Form()
+			c.appendMarkup(self.form.getMarkup(), '#main')
+
+		else:
+			newElement = ""
+
+			if element == 'textarea':
+				newElement = self.form.addTextArea()
+			elif element == 'dropdown':
+				newElement = self.form.addDropdown()
+			elif element == 'checkbox':
+				newElement = self.form.addCheckbox()
+			elif element == 'radio':
+				newElement = self.form.addRadio()
+			elif element == 'text':
+				newElement = self.form.addTextInput()
+			elif element == 'password':
+				newElement = self.form.addPasswordInput()
+			elif element == 'number':
+				newElement = self.form.addNumberInput()
+			elif element == 'submit':
+				newElement = self.form.addSubmit()
+
+			self.form.appendMarkup(newElement, 'form')
 
 	def pagePackager(self):
 		""" Logic in charge of packaging all files into a directory """
+		f = open(self.pageTitle + '.html', 'w+')
+		f.write(self.getPrettyMarkup())
+		f.close()
 
 	def pagePrint(self):
 		"""Logic in charge of printing current page markup"""
@@ -174,12 +178,7 @@ class Form:
 
 class Content:
 	def __init__(self):
-		# self.columnDict = {
-		# 	1: '<main> </main>',
-		# 	2: '<main> <div class="row"> <div class="col-sm-6"> <p>Left column</p> </div> <div class="col-sm-6"> <p>Right column</p> </div> </div> </main>'
-		# }
-		# self.main = self.columnDict[columns]
-		self.markup = '<main> <div class="row"> <div class="col-sm-3"> </div> <div id="main" class="col-sm-6"> <p>Main column</p> </div> <div class="col-sm-3"> </div> </div> </main>'
+		self.markup = ''
 		self.d = pq(self.markup)
 
 	def getMarkup(self):
