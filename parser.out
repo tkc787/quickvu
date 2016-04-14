@@ -4,29 +4,26 @@ Grammar
 
 Rule 0     S' -> statement
 Rule 1     statement -> ACTION parameters
-Rule 2     parameters -> LPAR RPAR
-Rule 3     parameters -> LPAR varargslist RPAR
-Rule 4     varargslist -> varargslist COMMA ELEMENTS
-Rule 5     varargslist -> ELEMENTS
-Rule 6     varargslist -> NUM
-Rule 7     varargslist -> NAME
+Rule 2     statement -> ACTION
+Rule 3     parameters -> LPAR RPAR
+Rule 4     parameters -> LPAR ELEMENTS RPAR
+Rule 5     parameters -> LPAR NUM RPAR
+Rule 6     parameters -> LPAR NAME RPAR
 
 Terminals, with rules where they appear
 
-ACTION               : 1
-COMMA                : 4
-ELEMENTS             : 4 5
-LPAR                 : 2 3
-NAME                 : 7
-NUM                  : 6
-RPAR                 : 2 3
+ACTION               : 1 2
+ELEMENTS             : 4
+LPAR                 : 3 4 5 6
+NAME                 : 6
+NUM                  : 5
+RPAR                 : 3 4 5 6
 error                : 
 
 Nonterminals, with rules where they appear
 
 parameters           : 1
 statement            : 0
-varargslist          : 3 4
 
 Parsing method: LALR
 
@@ -34,6 +31,7 @@ state 0
 
     (0) S' -> . statement
     (1) statement -> . ACTION parameters
+    (2) statement -> . ACTION
 
     ACTION          shift and go to state 1
 
@@ -42,9 +40,13 @@ state 0
 state 1
 
     (1) statement -> ACTION . parameters
-    (2) parameters -> . LPAR RPAR
-    (3) parameters -> . LPAR varargslist RPAR
+    (2) statement -> ACTION .
+    (3) parameters -> . LPAR RPAR
+    (4) parameters -> . LPAR ELEMENTS RPAR
+    (5) parameters -> . LPAR NUM RPAR
+    (6) parameters -> . LPAR NAME RPAR
 
+    $end            reduce using rule 2 (statement -> ACTION .)
     LPAR            shift and go to state 3
 
     parameters                     shift and go to state 4
@@ -57,19 +59,16 @@ state 2
 
 state 3
 
-    (2) parameters -> LPAR . RPAR
-    (3) parameters -> LPAR . varargslist RPAR
-    (4) varargslist -> . varargslist COMMA ELEMENTS
-    (5) varargslist -> . ELEMENTS
-    (6) varargslist -> . NUM
-    (7) varargslist -> . NAME
+    (3) parameters -> LPAR . RPAR
+    (4) parameters -> LPAR . ELEMENTS RPAR
+    (5) parameters -> LPAR . NUM RPAR
+    (6) parameters -> LPAR . NAME RPAR
 
-    RPAR            shift and go to state 7
+    RPAR            shift and go to state 8
     ELEMENTS        shift and go to state 5
-    NUM             shift and go to state 9
-    NAME            shift and go to state 6
+    NUM             shift and go to state 6
+    NAME            shift and go to state 7
 
-    varargslist                    shift and go to state 8
 
 state 4
 
@@ -80,62 +79,49 @@ state 4
 
 state 5
 
-    (5) varargslist -> ELEMENTS .
+    (4) parameters -> LPAR ELEMENTS . RPAR
 
-    RPAR            reduce using rule 5 (varargslist -> ELEMENTS .)
-    COMMA           reduce using rule 5 (varargslist -> ELEMENTS .)
+    RPAR            shift and go to state 9
 
 
 state 6
 
-    (7) varargslist -> NAME .
+    (5) parameters -> LPAR NUM . RPAR
 
-    RPAR            reduce using rule 7 (varargslist -> NAME .)
-    COMMA           reduce using rule 7 (varargslist -> NAME .)
+    RPAR            shift and go to state 10
 
 
 state 7
 
-    (2) parameters -> LPAR RPAR .
+    (6) parameters -> LPAR NAME . RPAR
 
-    $end            reduce using rule 2 (parameters -> LPAR RPAR .)
+    RPAR            shift and go to state 11
 
 
 state 8
 
-    (3) parameters -> LPAR varargslist . RPAR
-    (4) varargslist -> varargslist . COMMA ELEMENTS
+    (3) parameters -> LPAR RPAR .
 
-    RPAR            shift and go to state 11
-    COMMA           shift and go to state 10
+    $end            reduce using rule 3 (parameters -> LPAR RPAR .)
 
 
 state 9
 
-    (6) varargslist -> NUM .
+    (4) parameters -> LPAR ELEMENTS RPAR .
 
-    RPAR            reduce using rule 6 (varargslist -> NUM .)
-    COMMA           reduce using rule 6 (varargslist -> NUM .)
+    $end            reduce using rule 4 (parameters -> LPAR ELEMENTS RPAR .)
 
 
 state 10
 
-    (4) varargslist -> varargslist COMMA . ELEMENTS
+    (5) parameters -> LPAR NUM RPAR .
 
-    ELEMENTS        shift and go to state 12
+    $end            reduce using rule 5 (parameters -> LPAR NUM RPAR .)
 
 
 state 11
 
-    (3) parameters -> LPAR varargslist RPAR .
+    (6) parameters -> LPAR NAME RPAR .
 
-    $end            reduce using rule 3 (parameters -> LPAR varargslist RPAR .)
-
-
-state 12
-
-    (4) varargslist -> varargslist COMMA ELEMENTS .
-
-    RPAR            reduce using rule 4 (varargslist -> varargslist COMMA ELEMENTS .)
-    COMMA           reduce using rule 4 (varargslist -> varargslist COMMA ELEMENTS .)
+    $end            reduce using rule 6 (parameters -> LPAR NAME RPAR .)
 

@@ -16,51 +16,27 @@ if sys.version_info[0] >= 3:
 	raw_input = input
 
 tokens = (
-	'NAME',	
+	'NAME',
 	'LPAR',
 	'RPAR',
-	'COMMA',
 	'ACTION',
 	'ELEMENTS',
-	'NUM',
+	'NUM'
 	)
 
 # Tokens
 
 t_NAME        = r'[a-zA-Z_][a-zA-Z0-9_]*'
 t_ELEMENTS 	  = r'\d+|paragraph|form|text|dropdown|input|radio|checkbox|submit|list|button|textarea|number'
-t_ACTION	  = r'VUcreate|VUmenu|VUcontainer|VUform|VUfooter'
+t_ACTION	  = r'VUcreate|VUmenu|VUelement|VUform|VUfooter|VUfinish'
 t_LPAR		  = r'\('
 t_RPAR 		  = r'\)'
-# t_VUCREATE    = r'VUcreate'
-# t_VUMENU      = r'VUmenu'
-# t_VUFOOTER    = r'VUfooter'
-# t_VUCONTAINER = r'VUcontainer'
-# t_PARAGRAPH	  = r'paragraph'
-# t_FORM        = r'form'
-# t_TEXT        = r'text'
-# t_DROPDOWN    = r'dropdown'
-# t_INPUT       = r'input'
-# t_RADIO       = r'radio'
-# t_CHECKBOX    = r'checkbox'
-# t_SUBMIT      = r'submit'
-# t_LIST        = r'list'
-# t_BUTTON      = r'button'
-# t_TEXTAREA    = r'textarea'
-# t_NUMBER      = r'number'
+# t_COMMA 	  = r','
 
 def t_NUM(t):
 	r'\d+'
 	t.value = int(t.value)
 	return t
-
-def t_COMMA(t):
-	r','
-	t.lexer.skip(1)
-
-# def t_newline(t):
-# 	r'\n+'
-# 	return t
 	
 def t_error(t):
 	print("Illegal character '%s'" % t.value[0])
@@ -70,103 +46,67 @@ def t_error(t):
 import ply.lex as lex
 lex.lex()
 
-def VUcrear(elements):
-	y = elements[:]
-	x.startPage(y[3]) 					
-	return "Page has been created."
+def VUcrear(element):
+	y = element[:]
+	x.startPage(y[2])
+
+def VUimport(element):
+	y = element[:]
+	x.startPage(y[2])
 	
-def VUmenuar(elements):
-	y = elements[:]
-	x.addMenu(y[3], x.getPageTitle)
-	return "Menu has been created."
+def VUmenuar(element):
+	y = element[:]
+	x.addMenu(y[2])
 	
-def VUcontenear(elements):
-	y = elements[:]
-	k = []
-	for z in y:
-		if z in keywords.values():
-			k.append(z)
-			
-	x.addContent(k)
-	return "Container has been created."
-		
-def VUfootear(elements):
-	y = elements[:]
-	x.addFooter(y[3])
-	return "Footer has been created."
-	
-methods_ops = {
-	"VUcreate"    : VUcrear,
-	"VUmenu"      : VUmenuar,
-	"VUfooter"    : VUfootear,
-	"VUcontainer" : VUcontenear
-}
+def VUelementear(element):
+	y = element[:]
+	x.addContent(y[2])
 
-# keywords = {
-# 	"paragraph" : t_PARAGRAPH,
-# 	"form" 		: t_FORM,
-# 	"text"      : t_TEXT,
-# 	"dropdown" 	: t_DROPDOWN, 
-# 	"input" 	: t_INPUT,
-# 	"list" 		: t_LIST,
-# 	"button" 	: t_BUTTON,
-# 	"radio"     : t_RADIO,
-# 	"checkbox"  : t_CHECKBOX,
-# 	"submit"    : t_SUBMIT,
-# 	"textarea"	: t_TEXTAREA,
-# 	"number"	: t_NUMBER
-# }
+def VUformear(element):
+	y = element[:]
+	x.addFormElement(y[2])
 
-# def p_expression_op(p):
-# 	"expression : expression '(' expression ')'"
-# 	elements = p[:]
-# 	print(p)
-# 	p[0] = methods_ops[p[1]](elements)
 
-# funcdef: [decorators] 'def' NAME parameters ':' suite
-# ignoring decorators
-
-# dictionary of names
-names = { }
+def VUfinishear():
+	x.pagePackager()
+	print("HTML has been generated successfully!")
 
 def p_statement(p):
-	"statement : ACTION parameters"
+	'''statement : ACTION parameters
+				 | ACTION'''
 	if p[1] == 'VUcreate':
-		print('fuck you')
-	else: 
+		x.startPage(p[2])
 		p[0] = p[2]
-
-
-# def p_statement_assign(p):
-#     'statement : NAME "=" ACTION'
-#     names[p[1]] = p[3]
-
-# def p_statement_expr(p):
-#     'statement : expression'
-#     print(p[1])
+	elif p[1] == 'VUmenu':
+		x.addMenu(p[2])
+		p[0] = p[2]
+	elif p[1] == 'VUimport':
+		VUimport(p[:])
+		p[0] = p[2]	
+	elif p[1] == 'VUelement':
+		# VUelementear(p[2])
+		x.addContent(p[2])
+		p[0] = p[2]
+	elif p[1] == 'VUform':
+		VUformear(p[:])
+		p[0] = p[2]
+	elif p[1] == 'VUfooter':
+		x.addFooter()
+	elif p[1] == 'VUfinish':
+		x.pagePackager()
+		print("HTML has been generated successfully!")
+	else: 
+		print("Syntax Error, Action statement not valid!")
+		p[0] = 'Syntax Error'
 
 # parameters: '(' [varargslist] ')'
-def p_parameters(p):
+def p_parameter(p):
 	"""parameters : LPAR RPAR
-				  | LPAR varargslist RPAR"""
-	print(p)
-	if len(p) == 3:
-		p[0] = []
-	else:
-		p[0] = p[2]
-
-# varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' '**' NAME] | '**' NAME) | 
-# highly simplified
-def p_varargslist(p):
-	"""varargslist : varargslist COMMA ELEMENTS
-				   | ELEMENTS
-				   | NUM
-				   | NAME
-				   """
-	if len(p) == 4:
-		p[0] = p[1] + p[3]
-	else:
-		p[0] = [p[1]]
+				  | LPAR ELEMENTS RPAR
+				  | LPAR NUM RPAR
+				  | LPAR NAME RPAR
+				  """
+	p[0] = p[2]
 
 def p_error(p):
 	if p:

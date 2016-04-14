@@ -5,9 +5,9 @@ _tabversion = '3.8'
 
 _lr_method = 'LALR'
 
-_lr_signature = '99BEC385CBB7F9FA78755488EB542E01'
+_lr_signature = '2F36BC4CC6095698890C6906E9A67749'
     
-_lr_action_items = {'LPAR':([1,],[3,]),'ELEMENTS':([3,10,],[5,12,]),'NAME':([3,],[6,]),'RPAR':([3,5,6,8,9,12,],[7,-5,-7,11,-6,-4,]),'NUM':([3,],[9,]),'COMMA':([5,6,8,9,12,],[-5,-7,10,-6,-4,]),'ACTION':([0,],[1,]),'$end':([2,4,7,11,],[0,-1,-2,-3,]),}
+_lr_action_items = {'LPAR':([1,],[3,]),'ELEMENTS':([3,],[5,]),'NAME':([3,],[7,]),'RPAR':([3,5,6,7,],[8,9,10,11,]),'NUM':([3,],[6,]),'ACTION':([0,],[1,]),'$end':([1,2,4,8,9,10,11,],[-2,0,-1,-3,-4,-5,-6,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -16,7 +16,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'varargslist':([3,],[8,]),'parameters':([1,],[4,]),'statement':([0,],[2,]),}
+_lr_goto_items = {'parameters':([1,],[4,]),'statement':([0,],[2,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,11 +26,10 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> statement","S'",1,None,None,None),
-  ('statement -> ACTION parameters','statement',2,'p_statement','quickvu.py',133),
-  ('parameters -> LPAR RPAR','parameters',2,'p_parameters','quickvu.py',150),
-  ('parameters -> LPAR varargslist RPAR','parameters',3,'p_parameters','quickvu.py',151),
-  ('varargslist -> varargslist COMMA ELEMENTS','varargslist',3,'p_varargslist','quickvu.py',161),
-  ('varargslist -> ELEMENTS','varargslist',1,'p_varargslist','quickvu.py',162),
-  ('varargslist -> NUM','varargslist',1,'p_varargslist','quickvu.py',163),
-  ('varargslist -> NAME','varargslist',1,'p_varargslist','quickvu.py',164),
+  ('statement -> ACTION parameters','statement',2,'p_statement','quickvu.py',85),
+  ('statement -> ACTION','statement',1,'p_statement','quickvu.py',86),
+  ('parameters -> LPAR RPAR','parameters',2,'p_parameter','quickvu.py',115),
+  ('parameters -> LPAR ELEMENTS RPAR','parameters',3,'p_parameter','quickvu.py',116),
+  ('parameters -> LPAR NUM RPAR','parameters',3,'p_parameter','quickvu.py',117),
+  ('parameters -> LPAR NAME RPAR','parameters',3,'p_parameter','quickvu.py',118),
 ]

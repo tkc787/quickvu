@@ -1,6 +1,9 @@
 # Page Classes
 
-# import abc
+
+
+# Import module for prettifying HTML
+from html5print import HTMLBeautifier
 
 # Importing PyQuery Library for html management
 from pyquery import PyQuery as pq
@@ -26,7 +29,8 @@ from bs4 import BeautifulSoup
 class Page:
 	def startPage(self, pageTitle):
 		self.pageTitle = pageTitle
-		self.markup = '<html lang="en"> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head> <body> <main> <div class="row"> <div class="col-sm-3"> </div> <div id="main" class="col-sm-6"> <p>Main column</p> </div> <div class="col-sm-3"> </div> </div> </main> </body> </html>'
+		self.head = '<!DOCTYPE html> <html lang="en"> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head>'
+		self.markup = '<body style="padding-top: 70px;"> <div class="container"> <div class="row"> <div class="col-sm-3"> </div> <div id="main" class="col-sm-6"> <h2 class="text-center">Main column</h2> </div> <div class="col-sm-3"> </div> </div> </div> </body>'
 		self.d = pq(self.markup)
 		self.hasMenu = False
 		self.hasFooter = False
@@ -39,8 +43,8 @@ class Page:
 
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page markup string, with correct indentation """
-		soup = BeautifulSoup(self.markup, 'html.parser')
-		return soup.prettify()
+		# soup = BeautifulSoup(self.markup, 'html5lib')
+		return HTMLBeautifier.beautify(self.markup, 4)
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
@@ -50,25 +54,28 @@ class Page:
 		return self.pageTitle
 
 	def addMenu(self, type):
-		m = Menu(type, self.pageTitle)
-		self.d('body').prepend(m.getMarkup())
-		self.hasMenu = True
+		if not self.hasMenu:
+			m = Menu(type, self.pageTitle)
+			self.d('body').prepend(m.getMarkup())
+			self.markup = self.d('body')
+			self.hasMenu = True
+		else:
+			print('Page already has a menu.')
 
-	def addContent(element):
-		c = Content()
+	def addContent(self, element):
 		if element == 'paragraph':
-			c.appendMarkup(c.addParagraph(), '#main')
+			self.appendMarkup(Content.addParagraph(), '#main')
 		elif element == 'list':
-			c.appendMarkup(c.addList(), '#main')
+			self.appendMarkup(Content.addList(), '#main')
 		elif element == 'button':
-			c.appendMarkup(c.addButton(), '#main')
+			self.appendMarkup(Content.addButton(), '#main')
+		self.markup = self.d('body')
 
 	def addFormElement(self, element):
-		c = Content()
-		if !self.hasForm:
+		if not self.hasForm:
 			self.hasForm = True
 			self.form = Form()
-			c.appendMarkup(self.form.getMarkup(), '#main')
+			self.appendMarkup(self.form.getMarkup(), '#main')
 
 		else:
 			newElement = ""
@@ -90,12 +97,23 @@ class Page:
 			elif element == 'submit':
 				newElement = self.form.addSubmit()
 
-			self.form.appendMarkup(newElement, 'form')
+			self.appendMarkup(newElement, 'fieldset')
+
+	def addFooter(self):
+		""" Logic for adding a footer to the page """
+		if not self.hasFooter:
+			f = Footer()
+			self.d('body').append(f.getMarkup())
+			self.markup = self.d('body')
+			self.hasFooter = True
+		else:
+			print('Page already has a footer.')
 
 	def pagePackager(self):
 		""" Logic in charge of packaging all files into a directory """
+		print(self.markup)
 		f = open(self.pageTitle + '.html', 'w+')
-		f.write(self.getPrettyMarkup())
+		f.write(self.head + str(self.markup) + '</html>')
 		f.close()
 
 	def pagePrint(self):
@@ -106,7 +124,7 @@ class Menu:
 	def __init__(self, type, pageTitle):
 		# super(Menu, self).__init__()
 		self.menuDict = {
-			1: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav> <div class="row"></div>',
+			1: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav>',
 			2: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav>',
 			3: '<nav class="navbar navbar-inverse"> <div class="container-fluid"> <div class="navbar-header"> <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <div class="collapse navbar-collapse" id="myNavbar"> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 2</a></li> <li><a href="#">Page 3</a></li> </ul> </div> </div> </nav>'
 		}
@@ -119,8 +137,8 @@ class Menu:
 
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page"""
-		soup = BeautifulSoup(self.markup, 'html.parser')
-		return soup.prettify()
+		# soup = BeautifulSoup(self.markup, 'html5lib')
+		return HTMLBeautifier.beautify(self.markup, 4)
 
 	def addPageToMenu(self, pageTitle):
 		""" Here goes logic for appending a new item to the menu of a site whenever a new page is added """
@@ -128,7 +146,7 @@ class Menu:
 
 class Form:
 	def __init__(self):
-		self.markup = '<form role="form"> </form>'
+		self.markup = '<form role="form"> <fieldset class="form-group"> </fieldset> </form>'
 		self.d = pq(self.markup)
 
 	def getMarkup(self):
@@ -137,8 +155,8 @@ class Form:
 
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page markup string, with correct indentation """
-		soup = BeautifulSoup(self.markup, 'html.parser')
-		return soup.prettify()
+		# soup = BeautifulSoup(self.markup, 'html5lib')
+		return HTMLBeautifier.beautify(self.markup, 4)
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
@@ -162,24 +180,21 @@ class Form:
 
 	def addTextInput(self):
 		""" Logic in charge of adding an input form element """
-		return '<div class="form-group"> <label for="theInput">Input:</label> <input type="text" class="form-control" id="theInput"> </div>'
+		return '<div class="form-group"> <label for="theInput">Text Input:</label> <input type="text" class="form-control" id="theInput"> </div>'
 
 	def addPasswordInput(self):
 		""" Logic in charge of adding an input form element """
-		return '<div class="form-group"> <label for="theInput">Input:</label> <input type="password" class="form-control" id="theInput"> </div>'
+		return '<div class="form-group"> <label for="theInput">Password Input:</label> <input type="password" class="form-control" id="theInput"> </div>'
 
 	def addNumberInput(self):
 		""" Logic in charge of adding an input form element """
-		return '<div class="form-group"> <label for="theInput">Input:</label> <input type="number" class="form-control" id="theInput"> </div>'
+		return '<div class="form-group"> <label for="theInput">Number Input:</label> <input type="number" class="form-control" id="theInput"> </div>'
 
 	def addSubmit(self):
 		"""	Logic for adding a submit button to the form """
 		return '<button type="submit" class="btn btn-default">Submit</button>'
 
 class Content:
-	def __init__(self):
-		self.markup = ''
-		self.d = pq(self.markup)
 
 	def getMarkup(self):
 		""" Return object markup string """
@@ -187,28 +202,31 @@ class Content:
 
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page markup string, with correct indentation """
-		soup = BeautifulSoup(self.markup, 'html.parser')
-		return soup.prettify()
+		# soup = BeautifulSoup(self.markup, 'html5lib')
+		return HTMLBeautifier.beautify(self.markup, 4)
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
 		self.d(node).append(markup)
 
-	def addParagraph(self):
+	@staticmethod
+	def addParagraph():
 		"""	Logic for adding a paragraph """
 		return '<p>This is a paragraph. Write blocks of text here.</p>'
 
-	def addList(self):
+	@staticmethod
+	def addList():
 		"""	Logic for adding a list """
-		return '<ul class="list-group"> <li class="list-group-item">for every item</li> </ul>'
+		return '<ul class="list-group"> <li class="list-group-item">this is a list item</li> </ul>'
 
-	def addButton(self):
+	@staticmethod
+	def addButton():
 		"""	Logic for adding a button """
 		return '<button type="button" class="btn btn-default">A button</button>'
 
 class Footer:
 	def __init__(self):
-		self.markup = '<footer> <p>This is the footer of the page</p> </footer>'
+		self.markup = '<div class="navbar navbar-inverse navbar-fixed-bottom" role="navigation"><div class="container"><div class="navbar-text pull-left">HTML generated by QuickVu!</div></div></div>'
 		self.d = pq(self.markup)
 
 	def getMarkup(self):
@@ -217,8 +235,8 @@ class Footer:
 
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page markup string, with correct indentation """
-		soup = BeautifulSoup(self.markup, 'html.parser')
-		return soup.prettify()
+		# soup = BeautifulSoup(self.markup, 'html5lib')
+		return HTMLBeautifier.beautify(self.markup, 4)
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
