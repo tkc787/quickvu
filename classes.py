@@ -10,27 +10,13 @@ from pyquery import PyQuery as pq
 
 # Importing BeautifulSoup Library for cleaning final html output
 from bs4 import BeautifulSoup
-		
-# class BaseMarkup(object):
-#     __metaclass__  = abc.ABCMeta
-
-#     @abstractmethod
-# 	def getMarkup(self):
-# 		""" Return current Object Markup """
-		
-# 	@abstractmethod
-# 	def getPrettyMarkup(self):
-# 	""" Logic for returning page with correct html indentation """
-
-# 	@abstractmethod
-# 	def appendMarkup(self, markup, node):
-# 	""" Logic for appending markup to target node """
 
 class Page:
 	def startPage(self, pageTitle):
 		self.pageTitle = pageTitle
-		self.head = '<!DOCTYPE html> <html lang="en"> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head>'
-		self.markup = '<body style="padding-top: 70px;"> <div class="container"> <div class="row"> <div class="col-sm-3"> </div> <div id="main" class="col-sm-6"> <h2 class="text-center">Main column</h2> </div> <div class="col-sm-3"> </div> </div> </div> </body>'
+		# <!DOCTYPE html> 
+		self.head = '<html> <head> <title>' + self.pageTitle + '</title> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <link rel="stylesheet" href="css/main.css"> <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> </head>'
+		self.markup = '<body style="padding-top: 70px;"> <div class="container"> <div class="row"> <div class="col-sm-3"> </div> <div id="main" class="col-sm-6"> <h2 class="text-center">Main column</h2> </div> <div class="col-sm-3"> </div> </div> </div> </body> </html>'
 		self.d = pq(self.markup)
 		self.hasMenu = False
 		self.hasFooter = False
@@ -43,8 +29,8 @@ class Page:
 
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page markup string, with correct indentation """
-		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
+		indentedHTML = BeautifulSoup(self.head + " " + self.markup, 'html5lib')
+		return indentedHTML.prettify()
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
@@ -55,9 +41,12 @@ class Page:
 
 	def addMenu(self, type):
 		if not self.hasMenu:
-			m = Menu(type, self.pageTitle)
+			try:
+				m = Menu(type, self.pageTitle)
+			except SyntaxError:
+				print("Invalid type entered, please entera valid number between 1 and 3")
 			self.d('body').prepend(m.getMarkup())
-			self.markup = self.d('body')
+			self.markup = " " + str(self.d('body')) + " "
 			self.hasMenu = True
 		else:
 			print('Page already has a menu.')
@@ -69,8 +58,9 @@ class Page:
 			self.appendMarkup(Content.addList(), '#main')
 		elif element == 'button':
 			self.appendMarkup(Content.addButton(), '#main')
-		self.markup = self.d('body')
-
+		else:
+			print("Invalid element error. Verify that element desired was written correctly")
+		self.markup = " " + str(self.d('body')) + " "
 	def addFormElement(self, element):
 		if not self.hasForm:
 			self.hasForm = True
@@ -96,6 +86,8 @@ class Page:
 				newElement = self.form.addNumberInput()
 			elif element == 'submit':
 				newElement = self.form.addSubmit()
+			else:
+				print("Invalid form element error. Verify that element desired was written correctly")
 
 			self.appendMarkup(newElement, 'fieldset')
 
@@ -104,7 +96,7 @@ class Page:
 		if not self.hasFooter:
 			f = Footer()
 			self.d('body').append(f.getMarkup())
-			self.markup = self.d('body')
+			self.markup = str(self.d('body'))
 			self.hasFooter = True
 		else:
 			print('Page already has a footer.')
@@ -113,7 +105,7 @@ class Page:
 		""" Logic in charge of packaging all files into a directory """
 		print(self.markup)
 		f = open(self.pageTitle + '.html', 'w+')
-		f.write(self.head + str(self.markup) + '</html>')
+		f.write(self.head + self.getPrettyMarkup() + '</html>')
 		f.close()
 
 	def pagePrint(self):
@@ -138,7 +130,7 @@ class Menu:
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page"""
 		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
+		return soup.prettify()
 
 	def addPageToMenu(self, pageTitle):
 		""" Here goes logic for appending a new item to the menu of a site whenever a new page is added """
@@ -156,7 +148,7 @@ class Form:
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page markup string, with correct indentation """
 		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
+		return soup.prettify()
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
@@ -203,7 +195,7 @@ class Content:
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page markup string, with correct indentation """
 		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
+		return soup.prettify()
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
@@ -236,7 +228,7 @@ class Footer:
 	def getPrettyMarkup(self):
 		""" Here goes logic for returning page markup string, with correct indentation """
 		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
+		return soup.prettify()
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""

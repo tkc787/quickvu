@@ -21,7 +21,7 @@ tokens = (
 	'RPAR',
 	'ACTION',
 	'ELEMENTS',
-	'NUM'
+	'NUM',
 	)
 
 # Tokens
@@ -46,66 +46,56 @@ def t_error(t):
 import ply.lex as lex
 lex.lex()
 
-def VUcrear(element):
-	y = element[:]
-	x.startPage(y[2])
-
-def VUimport(element):
-	y = element[:]
-	x.startPage(y[2])
-	
-def VUmenuar(element):
-	y = element[:]
-	x.addMenu(y[2])
-	
-def VUelementear(element):
-	y = element[:]
-	x.addContent(y[2])
-
-def VUformear(element):
-	y = element[:]
-	x.addFormElement(y[2])
-
-
-def VUfinishear():
-	x.pagePackager()
-	print("HTML has been generated successfully!")
-
 def p_statement(p):
 	'''statement : ACTION parameters
 				 | ACTION'''
 	if p[1] == 'VUcreate':
-		x.startPage(p[2])
+		try:
+			x.startPage(p[2])
+		except AttributeError:
+			print("No page has been initialized, first use VUcreate command to initiate page")
 		p[0] = p[2]
 	elif p[1] == 'VUmenu':
-		x.addMenu(p[2])
+		try:
+			x.addMenu(p[2])
+		except AttributeError:
+			print("No page has been initialized, first use VUcreate command to initiate page")		
 		p[0] = p[2]
 	elif p[1] == 'VUimport':
-		VUimport(p[:])
+# 		Enter Import code here
 		p[0] = p[2]	
 	elif p[1] == 'VUelement':
-		# VUelementear(p[2])
-		x.addContent(p[2])
+		try:
+			x.addContent(p[2])
+		except AttributeError:
+			print("No page has been initialized, first use VUcreate command to initiate page")		
 		p[0] = p[2]
 	elif p[1] == 'VUform':
-		VUformear(p[:])
+		try:
+			x.addFormElement(p[2])
+		except AttributeError:
+			print("No page has been initialized, first use VUcreate command to initiate page")
 		p[0] = p[2]
-	elif p[1] == 'VUfooter':
-		x.addFooter()
+	# elif p[1] == 'VUfooter':
+	# 	x.addFooter()
 	elif p[1] == 'VUfinish':
-		x.pagePackager()
+		try:
+			x.addFooter()
+			x.pagePackager()
+		except AttributeError:
+			print("No page has been initialized, first use VUcreate command to initiate page")		
 		print("HTML has been generated successfully!")
-	else: 
+	else:
 		print("Syntax Error, Action statement not valid!")
 		p[0] = 'Syntax Error'
 
-# parameters: '(' [varargslist] ')'
-def p_parameter(p):
-	"""parameters : LPAR RPAR
+# parameters: '(' element ')'
+def p_parameters(p):
+	'''parameters : LPAR RPAR
 				  | LPAR ELEMENTS RPAR
 				  | LPAR NUM RPAR
 				  | LPAR NAME RPAR
-				  """
+				  '''
 	p[0] = p[2]
 
 def p_error(p):
