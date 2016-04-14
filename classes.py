@@ -70,8 +70,7 @@ class Page:
 			self.hasForm = True
 			self.form = Form()
 			self.appendMarkup(self.form.getMarkup(), '#main')
-
-<<<<<<< HEAD
+			
 		else:
 			newElement = ""
 
