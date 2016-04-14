@@ -1,6 +1,9 @@
 # Page Classes
 
+import os.path
 
+# module for opening url in web browser
+import webbrowser
 
 # Import module for prettifying HTML
 from html5print import HTMLBeautifier
@@ -10,21 +13,6 @@ from pyquery import PyQuery as pq
 
 # Importing BeautifulSoup Library for cleaning final html output
 from bs4 import BeautifulSoup
-		
-# class BaseMarkup(object):
-#     __metaclass__  = abc.ABCMeta
-
-#     @abstractmethod
-# 	def getMarkup(self):
-# 		""" Return current Object Markup """
-		
-# 	@abstractmethod
-# 	def getPrettyMarkup(self):
-# 	""" Logic for returning page with correct html indentation """
-
-# 	@abstractmethod
-# 	def appendMarkup(self, markup, node):
-# 	""" Logic for appending markup to target node """
 
 class Page:
 	def startPage(self, pageTitle):
@@ -69,6 +57,7 @@ class Page:
 			self.appendMarkup(Content.addList(), '#main')
 		elif element == 'button':
 			self.appendMarkup(Content.addButton(), '#main')
+
 		self.markup = self.d('body')
 
 	def addFormElement(self, element):
@@ -77,27 +66,27 @@ class Page:
 			self.form = Form()
 			self.appendMarkup(self.form.getMarkup(), '#main')
 
-		else:
-			newElement = ""
+		newElement = ''
 
-			if element == 'textarea':
-				newElement = self.form.addTextArea()
-			elif element == 'dropdown':
-				newElement = self.form.addDropdown()
-			elif element == 'checkbox':
-				newElement = self.form.addCheckbox()
-			elif element == 'radio':
-				newElement = self.form.addRadio()
-			elif element == 'text':
-				newElement = self.form.addTextInput()
-			elif element == 'password':
-				newElement = self.form.addPasswordInput()
-			elif element == 'number':
-				newElement = self.form.addNumberInput()
-			elif element == 'submit':
-				newElement = self.form.addSubmit()
+		if element == 'textarea':
+			newElement = self.form.addTextArea()
+		elif element == 'dropdown':
+			newElement = self.form.addDropdown()
+		elif element == 'checkbox':
+			newElement = self.form.addCheckbox()
+		elif element == 'radio':
+			newElement = self.form.addRadio()
+		elif element == 'text':
+			newElement = self.form.addTextInput()
+		elif element == 'password':
+			newElement = self.form.addPasswordInput()
+		elif element == 'number':
+			newElement = self.form.addNumberInput()
+		elif element == 'submit':
+			newElement = self.form.addSubmit()
 
-			self.appendMarkup(newElement, 'fieldset')
+		if newElement:
+			self.appendMarkup(newElement, 'form')
 
 	def addFooter(self):
 		""" Logic for adding a footer to the page """
@@ -111,10 +100,13 @@ class Page:
 
 	def pagePackager(self):
 		""" Logic in charge of packaging all files into a directory """
-		print(self.markup)
 		f = open(self.pageTitle + '.html', 'w+')
 		f.write(self.head + str(self.markup) + '</html>')
 		f.close()
+		# open an HTML file on my own (Windows) computer
+		__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+		url = 'file://' + os.path.join(__location__, self.pageTitle + '.html')
+		webbrowser.open(url,2)
 
 	def pagePrint(self):
 		"""Logic in charge of printing current page markup"""
@@ -122,7 +114,6 @@ class Page:
 
 class Menu:
 	def __init__(self, type, pageTitle):
-		# super(Menu, self).__init__()
 		self.menuDict = {
 			1: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav>',
 			2: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav>',
@@ -135,28 +126,18 @@ class Menu:
 	def getMarkup(self):
 		return self.markup
 
-	def getPrettyMarkup(self):
-		""" Here goes logic for returning page"""
-		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
-
 	def addPageToMenu(self, pageTitle):
 		""" Here goes logic for appending a new item to the menu of a site whenever a new page is added """
 		self.d('ul').append('<li><a href="#">' + pageTitle + '</a></li>')
 
 class Form:
 	def __init__(self):
-		self.markup = '<form role="form"> <fieldset class="form-group"> </fieldset> </form>'
+		self.markup = '<form role="form"> </form>'
 		self.d = pq(self.markup)
 
 	def getMarkup(self):
 		""" Return object markup string """
 		return self.markup
-
-	def getPrettyMarkup(self):
-		""" Here goes logic for returning page markup string, with correct indentation """
-		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
@@ -192,18 +173,13 @@ class Form:
 
 	def addSubmit(self):
 		"""	Logic for adding a submit button to the form """
-		return '<button type="submit" class="btn btn-default">Submit</button>'
+		return '<button type="submit" class="btn btn-default pull-right">Submit</button>'
 
 class Content:
 
 	def getMarkup(self):
 		""" Return object markup string """
 		return self.markup
-
-	def getPrettyMarkup(self):
-		""" Here goes logic for returning page markup string, with correct indentation """
-		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
@@ -217,7 +193,7 @@ class Content:
 	@staticmethod
 	def addList():
 		"""	Logic for adding a list """
-		return '<ul class="list-group"> <li class="list-group-item">this is a list item</li> </ul>'
+		return '<ul class="list-group"> <li class="list-group-item">this is a list item</li> <li class="list-group-item">another list item</li> </ul>'
 
 	@staticmethod
 	def addButton():
@@ -232,11 +208,6 @@ class Footer:
 	def getMarkup(self):
 		""" Return object markup string """
 		return self.markup
-
-	def getPrettyMarkup(self):
-		""" Here goes logic for returning page markup string, with correct indentation """
-		# soup = BeautifulSoup(self.markup, 'html5lib')
-		return HTMLBeautifier.beautify(self.markup, 4)
 
 	def appendMarkup(self, markup, node):
 		"""	Logic for appending current page body markup with parameter markup.	"""
