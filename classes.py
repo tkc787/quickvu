@@ -1,6 +1,9 @@
 # Page Classes
 
+import os.path
 
+# module for opening url in web browser
+import webbrowser
 
 # Import module for prettifying HTML
 from html5print import HTMLBeautifier
@@ -61,12 +64,14 @@ class Page:
 		else:
 			print("Invalid element error. Verify that element desired was written correctly")
 		self.markup = " " + str(self.d('body')) + " "
+
 	def addFormElement(self, element):
 		if not self.hasForm:
 			self.hasForm = True
 			self.form = Form()
 			self.appendMarkup(self.form.getMarkup(), '#main')
 
+<<<<<<< HEAD
 		else:
 			newElement = ""
 
@@ -88,7 +93,6 @@ class Page:
 				newElement = self.form.addSubmit()
 			else:
 				print("Invalid form element error. Verify that element desired was written correctly")
-
 			self.appendMarkup(newElement, 'fieldset')
 
 	def addFooter(self):
@@ -103,10 +107,13 @@ class Page:
 
 	def pagePackager(self):
 		""" Logic in charge of packaging all files into a directory """
-		print(self.markup)
 		f = open(self.pageTitle + '.html', 'w+')
 		f.write(self.head + self.getPrettyMarkup() + '</html>')
 		f.close()
+		# open an HTML file on my own (Windows) computer
+		__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+		url = 'file://' + os.path.join(__location__, self.pageTitle + '.html')
+		webbrowser.open(url,2)
 
 	def pagePrint(self):
 		"""Logic in charge of printing current page markup"""
@@ -114,7 +121,6 @@ class Page:
 
 class Menu:
 	def __init__(self, type, pageTitle):
-		# super(Menu, self).__init__()
 		self.menuDict = {
 			1: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav>',
 			2: '<nav class="navbar navbar-inverse navbar-fixed-top"> <div class="container-fluid"> <div class="navbar-header"> <a class="navbar-brand" href="#">' + pageTitle + '</a> </div> <ul class="nav navbar-nav"> <li class="active"><a href="#">Home</a></li> <li><a href="#">Page 1</a></li> </ul> </div> </nav>',
@@ -138,7 +144,7 @@ class Menu:
 
 class Form:
 	def __init__(self):
-		self.markup = '<form role="form"> <fieldset class="form-group"> </fieldset> </form>'
+		self.markup = '<form role="form"> </form>'
 		self.d = pq(self.markup)
 
 	def getMarkup(self):
@@ -184,7 +190,7 @@ class Form:
 
 	def addSubmit(self):
 		"""	Logic for adding a submit button to the form """
-		return '<button type="submit" class="btn btn-default">Submit</button>'
+		return '<button type="submit" class="btn btn-default pull-right">Submit</button>'
 
 class Content:
 
@@ -209,7 +215,7 @@ class Content:
 	@staticmethod
 	def addList():
 		"""	Logic for adding a list """
-		return '<ul class="list-group"> <li class="list-group-item">this is a list item</li> </ul>'
+		return '<ul class="list-group"> <li class="list-group-item">this is a list item</li> <li class="list-group-item">another list item</li> </ul>'
 
 	@staticmethod
 	def addButton():
