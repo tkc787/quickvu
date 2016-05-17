@@ -8,8 +8,14 @@
 import sys
 sys.path.insert(0,"../..")
 
+
 # Global Variables
-from classes import Page
+
+# Counter variable holding 0 if a page instance has not been created
+global cc 
+c = {'c': 0}
+
+from intermidiate import Page
 x = Page()
 
 if sys.version_info[0] >= 3:
@@ -17,21 +23,25 @@ if sys.version_info[0] >= 3:
 
 tokens = (
 	'NAME',
-	'LPAR',
-	'RPAR',
+	'LANK',
+	'RANK',
 	'ACTION',
 	'ELEMENTS',
 	'NUM',
+	'WS',
 	)
 
 # Tokens
 
 t_NAME        = r'[a-zA-Z_][a-zA-Z0-9_]*'
-t_ELEMENTS 	  = r'\d+|paragraph|form|text|dropdown|input|radio|checkbox|submit|list|button|textarea|number'
-t_ACTION	  = r'VUcreate|VUmenu|VUelement|VUform|VUfooter|VUfinish'
-t_LPAR		  = r'\('
-t_RPAR 		  = r'\)'
-# t_COMMA 	  = r','
+t_ELEMENTS 	  = r'\d+|paragraph|form|textarea|text|dropdown|input|radio|checkbox|submit|list|button|number'
+t_ACTION	  = r'vucreate|vumenu|vuelement|vuform|vufooter|vufinish'
+# t_LPAR		  = r'\('
+# t_RPAR 		  = r'\)'
+t_LANK		  = r'\<'
+t_RANK 		  = r'\>'
+t_WS 		  = r' [ ]+ '
+t_ignore 	  = "\t\n"
 
 def t_NUM(t):
 	r'\d+'
@@ -46,55 +56,65 @@ def t_error(t):
 import ply.lex as lex
 lex.lex()
 
+def p_statements(p):
+	'''
+	statements : 
+			   | statements statement
+	'''
+
 def p_statement(p):
-	'''statement : ACTION parameters
-				 | ACTION'''
-	if p[1] == 'VUcreate':
+	'''statement : LANK ACTION parameters RANK
+				 | LANK ACTION RANK
+				 | WS LANK ACTION parameters RANK
+				 | WS LANK ACTION RANK'''
+
+	if str(p[1]).isspace():
+		i = 3
+	else:
+		i = 2
+	if p[i] == 'vucreate':
 		try:
-			x.startPage(p[2])
+			if c['c'] == 0:
+				x.startPage(p[i+1])
+				c['c'] += 1
+			else:
+				print(x.getPageTitle() + ' page instance is already running, use vufinish command before starting new instance')
 		except AttributeError:
 			print("No page has been initialized, first use VUcreate command to initiate page")
-		p[0] = p[2]
-	elif p[1] == 'VUmenu':
+	elif p[i] == 'vumenu':
 		try:
-			x.addMenu(p[2])
+			x.addMenu(p[i+1])
 		except AttributeError:
 			print("No page has been initialized, first use VUcreate command to initiate page")		
-		p[0] = p[2]
-	elif p[1] == 'VUimport':
-# 		Enter Import code here
-		p[0] = p[2]	
-	elif p[1] == 'VUelement':
+	elif p[i] == 'vuelement':
 		try:
-			x.addContent(p[2])
+			x.addContent(p[i+1])
 		except AttributeError:
 			print("No page has been initialized, first use VUcreate command to initiate page")		
-		p[0] = p[2]
-	elif p[1] == 'VUform':
+	elif p[i] == 'vuform':
 		try:
-			x.addFormElement(p[2])
+			x.addFormElement(p[i+1])
 		except AttributeError:
 			print("No page has been initialized, first use VUcreate command to initiate page")
-		p[0] = p[2]
 	# elif p[1] == 'VUfooter':
 	# 	x.addFooter()
-	elif p[1] == 'VUfinish':
+	elif p[i] == 'vufinish':
 		try:
 			x.addFooter()
 			x.pagePackager()
-		except AttributeError:
-			print("No page has been initialized, first use VUcreate command to initiate page")		
-		print("HTML has been generated successfully!")
+			c['c'] -= 1
+			print("HTML has been generated successfully!")
+		except AttributeError, e:
+			print(str(e))
+			print("No page has been initialized, first use VUcreate command to initiate page")
 	else:
 		print("Syntax Error, Action statement not valid!")
-		p[0] = 'Syntax Error'
 
 # parameters: '(' element ')'
 def p_parameters(p):
-	'''parameters : LPAR RPAR
-				  | LPAR ELEMENTS RPAR
-				  | LPAR NUM RPAR
-				  | LPAR NAME RPAR
+	'''parameters : WS ELEMENTS
+				  | WS NUM
+				  | WS NAME
 				  '''
 	p[0] = p[2]
 
@@ -109,7 +129,7 @@ yacc.yacc()
 		
 while 1:
 	try:
-		s = raw_input('QuickVU > ')
+		s = raw_input('QuickVu > ')
 	except EOFError:
 		break
 	if not s: continue
