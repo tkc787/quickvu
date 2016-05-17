@@ -43,9 +43,7 @@ QuickVU is a programming language designed to facilitate user interface developm
 Command | Parameter | Description
 ------- | --------- | ----------
 `<vucreate page_title>` | Any name | The title of the web page
-`<vumenu x>` | 1, 2, 3 | 1. White navigation template
-2. Black navigation template
-3. Black navigation and responsive template
+`<vumenu x>` | 1, 2, 3 | 1 = White navigation template, 2 = Black navigation template, 3 = Black navigation and responsive template
 `<vuelement headingX>` | heading1, heading2, heading3, heading4, heading5, heading6 | Creates a dummy heading
 `<vuelement paragraph>` | paragraph | Adds a dummy paragraph
 `<vuelement table>` | table | Creates a dummy table
