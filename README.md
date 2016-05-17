@@ -25,15 +25,15 @@ QuickVU is a programming language designed to facilitate user interface developm
 
 ## Sample usage
 
-1. *QuickVu >* <vucreate htmlpage>
-2. *QuickVu >* <vumenu 1>
-3. *QuickVu >* <vuelement heading1>
-4. *QuickVu >* <vuelement paragraph>
-5. *QuickVu >* <vuelement heading2>
-6. *QuickVu >* <vuelement table>
-7. *QuickVu >* <vuelement image>
-8. *QuickVu >* <vuform textarea>
-9. *QuickVu >* <vuform dropdown>
-10.	*QuickVu >* <vuform password>
-11.	*QuickVu >* <vuform submit>
-12.	*QuickVu >* <vufinish>
+1. `*QuickVu >* <vucreate htmlpage>`
+2. `*QuickVu >* <vumenu 1>`
+3. `*QuickVu >* <vuelement heading1>`
+4. `*QuickVu >* <vuelement paragraph>`
+5. `*QuickVu >* <vuelement heading2>`
+6. `*QuickVu >* <vuelement table>`
+7. `*QuickVu >* <vuelement image>`
+8. `*QuickVu >* <vuform textarea>`
+9. `*QuickVu >* <vuform dropdown>`
+10.	`*QuickVu >* <vuform password>`
+11.	`*QuickVu >* <vuform submit>`
+12.	`*QuickVu >* <vufinish>`
