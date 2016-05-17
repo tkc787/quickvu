@@ -127,7 +127,7 @@ class Page:
 		f = open(self.pageTitle + '.html', 'w+')
 		f.write('<!DOCTYPE html> <html>' + self.getPrettyMarkup() + '</html>')
 		f.close()
-		# open an HTML file on my own (Windows) comput	er
+		# open an HTML file on my own (Windows) computer
 		__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 		url = 'file://' + os.path.join(__location__, self.pageTitle + '.html')
 		webbrowser.get().open(url,2)
