@@ -37,3 +37,41 @@ QuickVU is a programming language designed to facilitate user interface developm
 10.	*QuickVu* `> <vuform password>`
 11.	*QuickVu* `> <vuform submit>`
 12.	*QuickVu* `> <vufinish>`
+
+## Language Reference Manual
+
+Command | Parameter | Description
+------- | --------- | ----------
+<vucreate page_title> | Any name | The title of the web page
+------- | --------- | ----------
+<vumenu x> | 1, 2, 3 | 1. White navigation template 2. Black navigation template 3. Black navigation and responsive template
+------- | --------- | ----------
+<vuelement headingX> | heading1, heading2, heading3, heading4, heading5, heading6 | Creates a dummy heading
+------- | --------- | ----------
+<vuelement paragraph> | paragraph | Adds a dummy paragraph
+------- | --------- | ----------
+<vuelement table> | table | Creates a dummy table
+------- | --------- | ----------
+<vuelement image> | image | Displays a dummy image
+------- | --------- | ----------
+<vuelement list> | list | Creates a dummy list
+------- | --------- | ----------
+<vuelement button> | button | Creates a default button
+------- | --------- | ----------
+<vuform textarea> | textarea | Creates a form with a text area
+------- | --------- | ----------
+<vuform dropdown> | dropdown | Creates a dropdown on the form
+------- | --------- | ----------
+<vuform radio> | radio | Creates a radio element for the form
+------- | --------- | ----------
+<vuform checkbox> | checkbox | Creates a simple checkbox element
+------- | --------- | ----------
+<vuform text> | text | Creates a simple are to input text
+------- | --------- | ----------
+<vuform password> | password | Creates area for password input
+------- | --------- | ----------
+<vuform number> | number | Creates area to input numbers
+------- | --------- | ----------
+<vuform submit> | submit | Creates a submit button
+------- | --------- | ----------
+<vufinish> | N/A | Finishes the web page and opens it. Also adds default footer for web page.
